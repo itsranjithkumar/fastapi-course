@@ -37,14 +37,15 @@ export default function DashboardPage() {
   const [users, setUsers] = useState<User[]>([])
   const [isLoadingPosts, setIsLoadingPosts] = useState(true)
   const [isLoadingUsers, setIsLoadingUsers] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
   const { user } = useAuth()
   const router = useRouter()
   const { toast } = useToast()
 
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (limit: number = 10, skip: number = 0) => {
     try {
       const token = localStorage.getItem("access_token")
-      const response = await fetch("http://localhost:8000/posts/", {
+      const response = await fetch(`http://localhost:8000/posts/?limit=${limit}&skip=${skip}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -121,7 +122,7 @@ export default function DashboardPage() {
   }, [toast])
 
   useEffect(() => {
-    fetchPosts()
+    fetchPosts(10, 0)
     fetchUsers()
   }, []) // Ensure fetchPosts and fetchUsers are stable functions
 
@@ -272,6 +273,25 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
+            <div className="pagination-controls mt-6 flex justify-center gap-4">
+              <Button
+                onClick={() => {
+                  fetchPosts(10, (currentPage - 1) * 10)
+                  setCurrentPage(currentPage - 1)
+                }}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                onClick={() => {
+                  fetchPosts(10, currentPage * 10)
+                  setCurrentPage(currentPage + 1)
+                }}
+              >
+                Next
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="users" className="mt-6">
