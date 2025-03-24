@@ -3,14 +3,14 @@
 import type React from "react"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import { Loader2 } from "lucide-react"
+import { Loader2, ArrowLeft } from "lucide-react"
 
 export default function CreatePostPage() {
   const [title, setTitle] = useState("")
@@ -24,19 +24,32 @@ export default function CreatePostPage() {
     setIsLoading(true)
 
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch('/api/posts', { method: 'POST', body: JSON.stringify({ title, description }) })
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
+      const response = await fetch('http://localhost:8000/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title,
+          description: description,
+        }),
+      });
 
+      if (!response.ok) {
+        throw new Error('Post creation failed');
+      }
+
+      const data = await response.json();
+      console.log('Post created successfully:', data);
       toast({
-        title: "Post created",
-        description: "Your post has been created successfully.",
+        title: "Post published!",
+        description: "Your thoughts are now live for everyone to see.",
       })
       router.push("/dashboard")
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to create post. Please try again.",
+        title: "Something went wrong",
+        description: "Please check your content and try again.",
         variant: "destructive",
       })
     } finally {
@@ -45,53 +58,74 @@ export default function CreatePostPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto py-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">Create a New Post</CardTitle>
-          <CardDescription>Share your thoughts with the community</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+    <div className="min-h-screen bg-background">
+      {/* Top Navigation */}
+   
+
+      <main className="max-w-2xl mx-auto px-6 py-12">
+        <div className="space-y-2 text-center mb-8">
+          <h1 className="text-3xl font-semibold tracking-tight">Create a New Post</h1>
+          <p className="text-muted-foreground">Share your thoughts with the community</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6 border border-gray-300 p-4 bg-white rounded-lg shadow-md">
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
+              <Label htmlFor="title" className="text-sm font-medium">
+                Title
+              </Label>
               <Input
                 id="title"
                 placeholder="Enter a title for your post"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
+                className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm"
                 required
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description" className="text-sm font-medium">
+                Description
+              </Label>
               <Textarea
                 id="description"
                 placeholder="Write your post content here..."
-                rows={6}
+                rows={8}
                 value={description}
-                onChange={(e: { target: { value: React.SetStateAction<string> } }) => setDescription(e.target.value)}
+                onChange={(e) => setDescription(e.target.value)}
+                className="min-h-[200px] rounded-xl border-border/50 bg-background/50 backdrop-blur-sm resize-none"
                 required
               />
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline" type="button" onClick={() => router.back()}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading}>
+          </div>
+
+          <div className="flex flex-col gap-4 pt-4">
+            <Button
+              type="submit"
+              className="h-12 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Publishing post...
                 </>
               ) : (
-                "Create Post"
+                "Publish Post"
               )}
             </Button>
-          </CardFooter>
+
+            <Button
+              type="button"
+              variant="ghost"
+              className="h-12 rounded-xl hover:bg-accent transition-colors"
+              onClick={() => router.back()}
+            >
+              Cancel
+            </Button>
+          </div>
         </form>
-      </Card>
+      </main>
     </div>
   )
 }
-

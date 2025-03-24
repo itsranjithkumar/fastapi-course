@@ -244,61 +244,78 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <div className="flex gap-2">
-          <Button asChild>
-            <Link href="/create-post">
-              <Plus className="mr-2 h-4 w-4" /> Create Post
-            </Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/create-user">
-              <Plus className="mr-2 h-4 w-4" /> Create User
-            </Link>
-          </Button>
+    <div className="min-h-screen bg-background">
+      {/* Top Navigation */}
+   
+
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-4xl font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+            Dashboard
+          </h1>
+          <div className="flex gap-3">
+            <Button
+              asChild
+              className="h-10 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+            >
+              <Link href="/create-post">
+                <Plus className="mr-2 h-4 w-4" /> New Post
+              </Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="h-10 px-6 rounded-full border-border/50 hover:bg-accent transition-colors"
+            >
+              <Link href="/create-user">
+                <Plus className="mr-2 h-4 w-4" /> New User
+              </Link>
+            </Button>
+          </div>
         </div>
+
+        <Tabs defaultValue="posts" className="w-full">
+          <TabsList className="h-12 bg-background border border-border/50 rounded-full p-1">
+            <TabsTrigger value="posts" className="flex items-center rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              <FileText className="mr-2 h-4 w-4" /> Posts
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+              <Users className="mr-2 h-4 w-4" /> Users
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="posts" className="mt-6">
+            {posts.length === 0 ? (
+              <div className="text-center py-16 px-6 rounded-3xl border border-border/50 bg-background/50 backdrop-blur-sm">
+                <h3 className="text-xl font-medium">No posts yet</h3>
+                <p className="text-muted-foreground mt-2">Be the first to create a post!</p>
+                <Button
+                  asChild
+                  className="mt-6 h-10 px-6 rounded-full bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  <Link href="/create-post">Create Post</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    currentUserId={user?.id || ""}
+                    onVote={handleVote}
+                    onDelete={handleDeletePost}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="users" className="mt-6">
+            <UserManagement users={users} onDeleteUser={handleDeleteUser} />
+          </TabsContent>
+        </Tabs>
       </div>
-
-      <Tabs defaultValue="posts" className="w-full">
-        <TabsList>
-          <TabsTrigger value="posts" className="flex items-center">
-            <FileText className="mr-2 h-4 w-4" /> Posts
-          </TabsTrigger>
-          <TabsTrigger value="users" className="flex items-center">
-            <Users className="mr-2 h-4 w-4" /> Users
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="posts" className="mt-6">
-          {posts.length === 0 ? (
-            <div className="text-center py-10">
-              <h3 className="text-lg font-medium">No posts yet</h3>
-              <p className="text-muted-foreground mt-1">Be the first to create a post!</p>
-              <Button asChild className="mt-4">
-                <Link href="/create-post">Create Post</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  currentUserId={user?.id || ""}
-                  onVote={handleVote}
-                  onDelete={handleDeletePost}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="users" className="mt-6">
-          <UserManagement users={users} onDeleteUser={handleDeleteUser} />
-        </TabsContent>
-      </Tabs>
     </div>
   )
 }

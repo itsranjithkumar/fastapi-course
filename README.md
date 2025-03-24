@@ -78,3 +78,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60(base)
   <a href="https://www.youtube.com/watch?v=Yw4LmMQXXFs&list=PL8VzFQ8k4U1L5QpSapVEzoSfob-4CR8zM&index=2">
     <img src="https://freshidea.com/jonah/youtube-api/subscribers-badge.php?label=Subscribers&style=for-the-badge&color=red&labelColor=ce4630" alt="youtube Badge"/>
   </a>
+
+
+
+
+
+
+run command - docker-compose -f docker-compose-dev.yml up

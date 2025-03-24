@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
 
@@ -21,85 +20,136 @@ export default function SignupPage() {
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch('/api/signup', { method: 'POST', body: JSON.stringify({ name, email, password }) })
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
+      const response = await fetch('http://localhost:8000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          password: password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Signup failed');
+      }
 
       toast({
-        title: "Account created",
-        description: "Your account has been created successfully. Please login.",
-      })
-      router.push("/login")
+        title: "Welcome to the community!",
+        description: "Your account has been created successfully.",
+      });
+      router.push("/login");
     } catch (error) {
+      const errorMessage = (error instanceof Error) ? error.message : "An unexpected error occurred.";
       toast({
-        title: "Signup failed",
-        description: "There was an error creating your account. Please try again.",
+        title: "Something went wrong",
+        description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh]">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl">Create an account</CardTitle>
-          <CardDescription>Enter your information to create an account</CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Navigation */}
+     
+
+      {/* Main Content */}
+      <main className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-[400px] space-y-8">
+          <div className="space-y-2 text-center">
+            <h1 className="text-3xl font-semibold tracking-tight">Create your account</h1>
+            <p className="text-muted-foreground">Join our community and start sharing</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6 border border-gray-300 p-4 bg-white rounded-lg shadow-md">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Full Name
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="John Doe"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-12 rounded-xl border-border/50 bg-background/50 backdrop-blur-sm"
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+
+            <Button
+              type="submit"
+              className="w-full h-12 rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating account...
                 </>
               ) : (
-                "Sign Up"
+                "Create Account"
               )}
             </Button>
-            <div className="text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/login" className="text-primary underline-offset-4 hover:underline">
-                Login
+
+            <div className="text-center text-sm text-muted-foreground">
+              By creating an account, you agree to our{" "}
+              <Link href="/terms" className="text-primary hover:text-primary/80 transition-colors">
+                Terms of Service
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">
+                Privacy Policy
               </Link>
             </div>
-          </CardFooter>
-        </form>
-      </Card>
+          </form>
+
+          <div className="text-center text-sm text-muted-foreground">
+            Already have an account?{" "}
+            <Link href="/login" className="text-primary hover:text-primary/80 transition-colors">
+              Sign in
+            </Link>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
-

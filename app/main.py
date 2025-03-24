@@ -7,8 +7,6 @@ from .routers import post, user, auth, vote
 from .config import settings
 
 
-# models.Base.metadata.create_all(bind=engine)
-
 app = FastAPI()
 
 origins = ["*"]
@@ -26,6 +24,9 @@ app.include_router(user.router)
 app.include_router(auth.router)
 app.include_router(vote.router)
 
+@app.on_event("startup")
+def startup():
+    models.Base.metadata.create_all(bind=engine)
 
 @app.get("/")
 def root():
