@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -41,113 +41,89 @@ export default function DashboardPage() {
   const router = useRouter()
   const { toast } = useToast()
 
+  const fetchPosts = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("access_token")
+      const response = await fetch("http://localhost:8000/posts/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (!response.ok) {
+        throw new Error("Failed to fetch posts")
+      }
+      const data = await response.json()
+      const formattedPosts = data.map((item: any) => ({
+        id: item.Post.id,
+        title: item.Post.title,
+        description: item.Post.content,
+        author: {
+          id: item.Post.owner_id,
+          name: item.Post.owner.email,
+        },
+        votes: item.votes,
+        userVote: null,
+        createdAt: item.Post.created_at,
+      }))
+      setPosts(formattedPosts)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch posts. Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoadingPosts(false)
+    }
+  }, [toast])
+
+  const fetchUsers = useCallback(async () => {
+    try {
+      // This would be replaced with your actual API call
+      // Example: const response = await fetch('/api/users')
+      await new Promise((resolve) => setTimeout(resolve, 1200)) // Simulating API call
+
+      // Mock data
+      const mockUsers: User[] = [
+        {
+          id: "user1",
+          name: "John Doe",
+          email: "john.doe@example.com",
+          role: "Admin",
+          createdAt: new Date(Date.now() - 3000000000).toISOString(),
+        },
+        {
+          id: "user2",
+          name: "Jane Smith",
+          email: "jane.smith@example.com",
+          role: "User",
+          createdAt: new Date(Date.now() - 2000000000).toISOString(),
+        },
+        {
+          id: "user3",
+          name: "Bob Johnson",
+          email: "bob.johnson@example.com",
+          role: "User",
+          createdAt: new Date(Date.now() - 1000000000).toISOString(),
+        },
+      ]
+
+      setUsers(mockUsers)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch users. Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoadingUsers(false)
+    }
+  }, [toast])
+
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        // This would be replaced with your actual API call
-        // Example: const response = await fetch('/api/posts')
-        await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
-
-        // Mock data
-        const mockPosts: Post[] = [
-          {
-            id: "1",
-            title: "Getting Started with Next.js",
-            description: "Next.js is a React framework that gives you building blocks to create web applications.",
-            author: {
-              id: "user1",
-              name: "John Doe",
-            },
-            votes: 15,
-            userVote: null,
-            createdAt: new Date().toISOString(),
-          },
-          {
-            id: "2",
-            title: "Why Tailwind CSS is Amazing",
-            description:
-              "Tailwind CSS is a utility-first CSS framework that can be composed to build any design, directly in your markup.",
-            author: {
-              id: "user2",
-              name: "Jane Smith",
-            },
-            votes: 8,
-            userVote: "upvote",
-            createdAt: new Date(Date.now() - 86400000).toISOString(),
-          },
-          {
-            id: "3",
-            title: "The Power of TypeScript",
-            description:
-              "TypeScript adds static type definitions to JavaScript, providing better tooling at any scale.",
-            author: {
-              id: "user1",
-              name: "John Doe",
-            },
-            votes: 12,
-            userVote: "downvote",
-            createdAt: new Date(Date.now() - 172800000).toISOString(),
-          },
-        ]
-
-        setPosts(mockPosts)
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch posts. Please try again later.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoadingPosts(false)
-      }
-    }
-
-    const fetchUsers = async () => {
-      try {
-        // This would be replaced with your actual API call
-        // Example: const response = await fetch('/api/users')
-        await new Promise((resolve) => setTimeout(resolve, 1200)) // Simulating API call
-
-        // Mock data
-        const mockUsers: User[] = [
-          {
-            id: "user1",
-            name: "John Doe",
-            email: "john.doe@example.com",
-            role: "Admin",
-            createdAt: new Date(Date.now() - 3000000000).toISOString(),
-          },
-          {
-            id: "user2",
-            name: "Jane Smith",
-            email: "jane.smith@example.com",
-            role: "User",
-            createdAt: new Date(Date.now() - 2000000000).toISOString(),
-          },
-          {
-            id: "user3",
-            name: "Bob Johnson",
-            email: "bob.johnson@example.com",
-            role: "User",
-            createdAt: new Date(Date.now() - 1000000000).toISOString(),
-          },
-        ]
-
-        setUsers(mockUsers)
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch users. Please try again later.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsLoadingUsers(false)
-      }
-    }
-
     fetchPosts()
     fetchUsers()
-  }, [toast])
+  }, []) // Ensure fetchPosts and fetchUsers are stable functions
 
   const handleVote = async (postId: string, voteType: "upvote" | "downvote") => {
     try {
@@ -190,8 +166,17 @@ export default function DashboardPage() {
 
   const handleDeletePost = async (postId: string) => {
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch(`/api/posts/${postId}`, { method: 'DELETE' })
+      const token = localStorage.getItem("access_token")
+      const response = await fetch(`http://localhost:8000/posts/${postId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete post")
+      }
 
       // Update local state
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId))
@@ -209,7 +194,6 @@ export default function DashboardPage() {
     }
   }
 
-  
   const isLoading = isLoadingPosts || isLoadingUsers
 
   if (isLoading) {
@@ -223,7 +207,6 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation */}
-   
 
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         <div className="flex items-center justify-between">
@@ -243,18 +226,22 @@ export default function DashboardPage() {
               asChild
               variant="outline"
               className="h-10 px-6 rounded-full border-border/50 hover:bg-accent transition-colors"
-            >
-              
-            </Button>
+            ></Button>
           </div>
         </div>
 
         <Tabs defaultValue="posts" className="w-full">
           <TabsList className="h-12 bg-background border border-border/50 rounded-full p-1">
-            <TabsTrigger value="posts" className="flex items-center rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+            <TabsTrigger
+              value="posts"
+              className="flex items-center rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+            >
               <FileText className="mr-2 h-4 w-4" /> Posts
             </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all">
+            <TabsTrigger
+              value="users"
+              className="flex items-center rounded-full px-6 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground transition-all"
+            >
               <Users className="mr-2 h-4 w-4" /> Users
             </TabsTrigger>
           </TabsList>
@@ -280,6 +267,7 @@ export default function DashboardPage() {
                     currentUserId={user?.id || ""}
                     onVote={handleVote}
                     onDelete={handleDeletePost}
+                    onEdit={() => router.push(`/edit-post/${post.id}`)}
                   />
                 ))}
               </div>
@@ -287,11 +275,10 @@ export default function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="users" className="mt-6">
-            <UserManagement users={users} onDeleteUser={handleDeleteUser} />
+            <UserManagement users={users} onDeleteUser={handleDeletePost} />
           </TabsContent>
         </Tabs>
       </div>
     </div>
   )
 }
-
