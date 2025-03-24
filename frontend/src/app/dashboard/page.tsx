@@ -209,30 +209,7 @@ export default function DashboardPage() {
     }
   }
 
-  const handleDeleteUser = async (userId: string) => {
-    try {
-      // This would be replaced with your actual API call
-      // Example: await fetch(`/api/users/${userId}`, { method: 'DELETE' })
-
-      // Update local state
-      setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId))
-
-      // Also remove posts by this user
-      setPosts((prevPosts) => prevPosts.filter((post) => post.author.id !== userId))
-
-      toast({
-        title: "Success",
-        description: "User deleted successfully.",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete user. Please try again.",
-        variant: "destructive",
-      })
-    }
-  }
-
+  
   const isLoading = isLoadingPosts || isLoadingUsers
 
   if (isLoading) {
@@ -267,9 +244,7 @@ export default function DashboardPage() {
               variant="outline"
               className="h-10 px-6 rounded-full border-border/50 hover:bg-accent transition-colors"
             >
-              <Link href="/create-user">
-                <Plus className="mr-2 h-4 w-4" /> New User
-              </Link>
+              
             </Button>
           </div>
         </div>

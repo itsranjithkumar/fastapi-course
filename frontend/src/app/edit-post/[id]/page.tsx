@@ -53,27 +53,43 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
   }, [id, router, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
+    e.preventDefault();
+    setIsSaving(true);
 
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch(`/api/posts/${id}`, { method: 'PUT', body: JSON.stringify({ title, description }) })
-      await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
+      const token = localStorage.getItem('access_token'); // Retrieve access token from local storage
+
+      const response = await fetch(`http://localhost:8000/posts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include token in the Authorization header
+        },
+        body: JSON.stringify({
+          title,
+          content: description,
+          published: false,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Post update failed');
+      }
 
       toast({
         title: "Post updated",
         description: "Your post has been updated successfully.",
-      })
-      router.push("/dashboard")
+      });
+      router.push("/dashboard");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update post. Please try again.",
+        description: (error instanceof Error) ? error.message : "Failed to update post. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
   }
 
@@ -135,4 +151,3 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     </div>
   )
 }
-

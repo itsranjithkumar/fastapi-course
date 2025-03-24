@@ -73,9 +73,7 @@ export default function UserManagement({ users, onDeleteUser }: UserManagementPr
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <Button asChild>
-          <Link href="/create-user">Add User</Link>
-        </Button>
+      
       </div>
 
       {filteredUsers.length === 0 ? (
