@@ -24,10 +24,13 @@ export default function CreatePostPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/posts', {
+      const token = localStorage.getItem('access_token'); // Retrieve access token from local storage
+
+      const response = await fetch('http://localhost:8000/posts/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Include token in the Authorization header
         },
         body: JSON.stringify({
           title: title,
