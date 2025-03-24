@@ -20,8 +20,8 @@ export default function CreatePostPage() {
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
     try {
       const response = await fetch('http://localhost:8000/posts', {
@@ -31,12 +31,15 @@ export default function CreatePostPage() {
         },
         body: JSON.stringify({
           title: title,
-          description: description,
+          content: description,
+          published: true,
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Post creation failed');
+        const errorData = await response.json();
+        console.error('Error response:', errorData); // Log the error response
+        throw new Error(errorData.detail || 'Post creation failed');
       }
 
       const data = await response.json();
@@ -45,15 +48,16 @@ export default function CreatePostPage() {
         title: "Post published!",
         description: "Your thoughts are now live for everyone to see.",
       })
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
+      console.error('Error during post creation:', error); // Log the error
       toast({
         title: "Something went wrong",
-        description: "Please check your content and try again.",
+        description: (error instanceof Error) ? error.message : "Please check your content and try again.",
         variant: "destructive",
       })
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
