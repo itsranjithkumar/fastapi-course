@@ -38,13 +38,15 @@ type Post = {
 }
 
 interface PostCardProps {
-  post: Post
-  currentUserId: string
-  onVote: (postId: string, voteType: "upvote" | "downvote") => void
-  onDelete: (postId: string) => void
+  key: string;
+  post: Post;
+  currentUserId: string;
+  onVote: (postId: string, voteType: "upvote" | "downvote") => Promise<void>;
+  onDelete: (postId: string) => Promise<void>;
+  onEdit: () => void;
 }
 
-export default function PostCard({ post, currentUserId, onVote, onDelete }: PostCardProps) {
+export default function PostCard({ post, currentUserId, onVote, onDelete, onEdit }: PostCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const isAuthor = post.author.id === currentUserId
 
@@ -72,10 +74,10 @@ export default function PostCard({ post, currentUserId, onVote, onDelete }: Post
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={`/edit-post/${post.id}`} className="flex items-center">
+                  <Button onClick={onEdit} className="flex items-center">
                     <Pencil className="mr-2 h-4 w-4" />
                     <span>Edit</span>
-                  </Link>
+                  </Button>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -142,4 +144,3 @@ export default function PostCard({ post, currentUserId, onVote, onDelete }: Post
     </Card>
   )
 }
-

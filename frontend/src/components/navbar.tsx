@@ -10,8 +10,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "./ui/dropdown-menu"
-import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet"
+import { Sheet, SheetContent } from "./ui/sheet"
 import { Menu, User, LogOut, Plus, Settings } from "lucide-react"
+import Image from "next/image" // Import Image from next/image
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -20,7 +21,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/60 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
-          <img src="/logo.svg" alt="Your Logo" className="h-15 w-auto" />
+          <Image src="/logo.svg" alt="Your Logo" width={15} height={15} /> {/* Use Image component */}
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
@@ -54,7 +55,7 @@ export default function Navbar() {
                   className="flex items-center"
                   onClick={() => setOpen(false)}
                 >
-                  <img src="/logo.png" alt="Your Logo" className="h-8 w-auto" />
+                  <Image src="/logo.png" alt="Your Logo" width={8} height={8} /> {/* Use Image component */}
                 </Link>
               </div>
               <nav className="flex flex-col p-6">

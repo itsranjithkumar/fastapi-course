@@ -12,32 +12,34 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
 
-export default function EditPostPage({ params }: { params: { id: string } }) {
+export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const { id } = params
+  const [id, setId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
+        const paramsData = await params
+        setId(paramsData.id)
         // This would be replaced with your actual API call
         // Example: const response = await fetch(`/api/posts/${id}`)
         await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
 
         // Mock data
         const mockPost = {
-          id,
+          id: paramsData.id,
           title: "Sample Post Title",
           description: "This is a sample post description that would be fetched from the API.",
         }
 
         setTitle(mockPost.title)
         setDescription(mockPost.description)
-      } catch (error) {
+      } catch {
         toast({
           title: "Error",
           description: "Failed to fetch post details. Please try again.",
@@ -50,7 +52,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
     }
 
     fetchPost()
-  }, [id, router, toast])
+  }, [params, router, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,10 +84,10 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
         description: "Your post has been updated successfully.",
       });
       router.push("/dashboard");
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
-        description: (error instanceof Error) ? error.message : "Failed to update post. Please try again.",
+        description: "Failed to update post. Please try again.",
         variant: "destructive",
       });
     } finally {

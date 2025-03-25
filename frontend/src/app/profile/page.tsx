@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Loader2, Mail, User } from "lucide-react"
 import PostCard from "../components/post-card"
 import { useAuth } from "@/components/auth-provider"
+import { useRouter } from "next/navigation"
 
 type Post = {
   id: string
@@ -28,13 +29,13 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true)
   const { user } = useAuth()
   const { toast } = useToast()
+  const router = useRouter()
 
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
-        // This would be replaced with your actual API call
-        // Example: const response = await fetch('/api/user/posts')
-        await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
+        // Simulating API call
+        await new Promise((resolve) => setTimeout(resolve, 1000))
 
         // Mock data
         const mockPosts: Post[] = [
@@ -51,10 +52,9 @@ export default function ProfilePage() {
             createdAt: new Date().toISOString(),
           },
           {
-            id: "3",
+            id: "2",
             title: "The Power of TypeScript",
-            description:
-              "TypeScript adds static type definitions to JavaScript, providing better tooling at any scale.",
+            description: "TypeScript adds static type definitions to JavaScript, providing better tooling at any scale.",
             author: {
               id: user?.id || "user1",
               name: user?.name || "John Doe",
@@ -66,7 +66,7 @@ export default function ProfilePage() {
         ]
 
         setUserPosts(mockPosts)
-      } catch (error) {
+      } catch {
         toast({
           title: "Error",
           description: "Failed to fetch user posts. Please try again later.",
@@ -82,20 +82,10 @@ export default function ProfilePage() {
 
   const handleVote = async (postId: string, voteType: "upvote" | "downvote") => {
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch('/api/vote', { method: 'POST', body: JSON.stringify({ postId, voteType }) })
-
       // Update local state optimistically
       setUserPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id === postId) {
-            const voteChange =
-              post.userVote === voteType
-                ? -1 // Removing vote
-                : post.userVote === null
-                  ? 1 // Adding new vote
-                  : 2 // Changing vote direction
-
             return {
               ...post,
               votes:
@@ -110,7 +100,7 @@ export default function ProfilePage() {
           return post
         }),
       )
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to register vote. Please try again.",
@@ -121,9 +111,6 @@ export default function ProfilePage() {
 
   const handleDelete = async (postId: string) => {
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch(`/api/posts/${postId}`, { method: 'DELETE' })
-
       // Update local state
       setUserPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId))
 
@@ -131,7 +118,7 @@ export default function ProfilePage() {
         title: "Success",
         description: "Post deleted successfully.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to delete post. Please try again.",
@@ -182,7 +169,7 @@ export default function ProfilePage() {
           {userPosts.length === 0 ? (
             <div className="text-center py-10">
               <h3 className="text-lg font-medium">No posts yet</h3>
-              <p className="text-muted-foreground mt-1">You haven't created any posts yet.</p>
+              <p className="text-muted-foreground mt-1">You haven&apos;t created any posts yet.</p>
               <Button asChild className="mt-4">
                 <Link href="/create-post">Create Post</Link>
               </Button>
@@ -196,6 +183,7 @@ export default function ProfilePage() {
                   currentUserId={user?.id || ""}
                   onVote={handleVote}
                   onDelete={handleDelete}
+                  onEdit={() => router.push(`/edit-post/${post.id}`)}
                 />
               ))}
             </div>
@@ -203,12 +191,10 @@ export default function ProfilePage() {
         </TabsContent>
         <TabsContent value="activity" className="mt-6">
           <div className="text-center py-10">
-            <h3 className="text-lg font-medium">Activity Feed</h3>
-            <p className="text-muted-foreground mt-1">Your recent activity will appear here.</p>
+            {/* Activity content here */}
           </div>
         </TabsContent>
       </Tabs>
     </div>
   )
 }
-

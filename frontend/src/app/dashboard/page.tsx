@@ -54,7 +54,7 @@ export default function DashboardPage() {
         throw new Error("Failed to fetch posts")
       }
       const data = await response.json()
-      const formattedPosts = data.map((item: any) => ({
+      const formattedPosts = data.map((item: { Post: { id: string; title: string; content: string; owner_id: string; created_at: string; owner: { email: string; }; }; votes: number; }) => ({
         id: item.Post.id,
         title: item.Post.title,
         description: item.Post.content,
@@ -67,7 +67,7 @@ export default function DashboardPage() {
         createdAt: item.Post.created_at,
       }))
       setPosts(formattedPosts)
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to fetch posts. Please try again later.",
@@ -110,7 +110,7 @@ export default function DashboardPage() {
       ]
 
       setUsers(mockUsers)
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to fetch users. Please try again later.",
@@ -124,24 +124,14 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchPosts(10, 0)
     fetchUsers()
-  }, []) // Ensure fetchPosts and fetchUsers are stable functions
+  }, [fetchPosts, fetchUsers]) // Ensure fetchPosts and fetchUsers are stable functions
 
   const handleVote = async (postId: string, voteType: "upvote" | "downvote") => {
     try {
-      // This would be replaced with your actual API call
-      // Example: await fetch('/api/vote', { method: 'POST', body: JSON.stringify({ postId, voteType }) })
-
       // Update local state optimistically
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id === postId) {
-            const voteChange =
-              post.userVote === voteType
-                ? -1 // Removing vote
-                : post.userVote === null
-                  ? 1 // Adding new vote
-                  : 2 // Changing vote direction
-
             return {
               ...post,
               votes:
@@ -156,7 +146,7 @@ export default function DashboardPage() {
           return post
         }),
       )
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to register vote. Please try again.",
@@ -186,7 +176,7 @@ export default function DashboardPage() {
         title: "Success",
         description: "Post deleted successfully.",
       })
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to delete post. Please try again.",

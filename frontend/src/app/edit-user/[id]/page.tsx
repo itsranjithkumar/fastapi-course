@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [role, setRole] = useState("")
@@ -20,18 +20,21 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const { id } = params
+  const [id, setId] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        const paramsData = await params
+        setId(paramsData.id)
+
         // This would be replaced with your actual API call
         // Example: const response = await fetch(`/api/users/${id}`)
         await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulating API call
 
         // Mock data
         const mockUser = {
-          id,
+          id: paramsData.id,
           name: "John Doe",
           email: "john.doe@example.com",
           role: "Admin",
@@ -40,7 +43,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         setName(mockUser.name)
         setEmail(mockUser.email)
         setRole(mockUser.role)
-      } catch (error) {
+      } catch {
         toast({
           title: "Error",
           description: "Failed to fetch user details. Please try again.",
@@ -53,7 +56,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
     }
 
     fetchUser()
-  }, [id, router, toast])
+  }, [params, router, toast])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,7 +72,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         description: "User details have been updated successfully.",
       })
       router.push("/dashboard?tab=users")
-    } catch (error) {
+    } catch {
       toast({
         title: "Error",
         description: "Failed to update user. Please try again.",
@@ -80,7 +83,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || id === null) {
     return (
       <div className="flex justify-center items-center min-h-[60vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -145,4 +148,3 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
     </div>
   )
 }
-

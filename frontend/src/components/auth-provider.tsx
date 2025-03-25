@@ -12,7 +12,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string) => Promise<void>
   logout: () => void
   isLoading: boolean
 }
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth()
   }, [])
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string) => {
     try {
       // Implement your login logic here
       // For now, we'll just simulate a successful login
